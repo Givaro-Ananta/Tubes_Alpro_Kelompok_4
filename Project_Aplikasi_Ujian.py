@@ -491,3 +491,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ExamApp(root)
     root.mainloop()
+    
+#akun admin: 
+#username: admin
+#password: admin123
