@@ -47,6 +47,12 @@ class ExamApp:
                            font=('Helvetica', 20, 'bold'),
                            background='#ffffff')
         
+        # Border frame style
+        self.style.configure('Border.TFrame', 
+                           borderwidth=1, 
+                           relief='solid', 
+                           background='#ffffff')
+        
         # Initialize user dictionaries for different roles
         self.admin_users = {"admin": "admin123"}  # Default admin account
         self.participant_users = {}
@@ -88,19 +94,19 @@ class ExamApp:
         btn_frame.pack(pady=5)
         
         login_btn = ttk.Button(btn_frame, text="Login", command=self.login,
-                              style='Login.TButton', width=20)
+                              style='Login.TButton', width=25)
         login_btn.pack(pady=5)
         
         # Add Register button
         register_btn = ttk.Button(btn_frame, text="Register", 
                                 command=self.register_screen,
-                                style='Register.TButton', width=20)
+                                style='Register.TButton', width=25)
         register_btn.pack(pady=5)
         
         # Admin login link
         admin_btn = ttk.Button(form_frame, text="Login as Admin", 
                              command=self.admin_login_screen,
-                             style='Register.TButton', width=20)
+                             style='Register.TButton', width=25)
         admin_btn.pack(pady=5)
 
     def register_screen(self):
@@ -181,12 +187,12 @@ class ExamApp:
         
         login_btn = ttk.Button(btn_frame, text="Login as Admin", 
                              command=self.admin_login,
-                             style='Login.TButton', width=20)
+                             style='Login.TButton', width=25)
         login_btn.pack(pady=5)
         
         back_btn = ttk.Button(btn_frame, text="Back to Participant Login", 
                             command=self.login_screen,
-                            style='Register.TButton', width=20)
+                            style='Register.TButton', width=25)
         back_btn.pack(pady=5)
 
     def login(self):
@@ -262,13 +268,15 @@ class ExamApp:
         view_window.title("All Questions")
         view_window.geometry("400x300")
         
-        frame = ttk.Frame(view_window)
+        # Create a frame with a border
+        frame = ttk.Frame(view_window, style='Border.TFrame')
         frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         ttk.Label(frame, text="Questions and Answers", 
                  style='Header.TLabel').pack(pady=(0, 10))
         
-        text_widget = tk.Text(frame, wrap=tk.WORD, width=40, height=12)
+        text_widget = tk.Text(frame, wrap=tk.WORD, width=40, height=12, 
+                             borderwidth=1, relief='solid')
         text_widget.pack(pady=10)
         
         for question, answer in self.questions.items():
@@ -288,13 +296,15 @@ class ExamApp:
         view_window.title("My Scores")
         view_window.geometry("300x400")
         
-        frame = ttk.Frame(view_window)
+        # Create a frame with a border
+        frame = ttk.Frame(view_window, style='Border.TFrame')
         frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         ttk.Label(frame, text="My Exam Scores", 
                  style='Header.TLabel').pack(pady=(0, 10))
         
-        text_widget = tk.Text(frame, wrap=tk.WORD, width=30, height=15)
+        text_widget = tk.Text(frame, wrap=tk.WORD, width=30, height=15, 
+                             borderwidth=1, relief='solid')
         text_widget.pack(pady=10)
         
         for i, score in enumerate(self.user_scores[self.current_user], 1):
@@ -317,13 +327,15 @@ class ExamApp:
         view_window.title("All User Scores")
         view_window.geometry("400x500")
         
-        frame = ttk.Frame(view_window)
+        # Create a frame with a border
+        frame = ttk.Frame(view_window, style='Border.TFrame')
         frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         ttk.Label(frame, text="All User Scores", 
                  style='Header.TLabel').pack(pady=(0, 10))
         
-        text_widget = tk.Text(frame, wrap=tk.WORD, width=40, height=20)
+        text_widget = tk.Text(frame, wrap=tk.WORD, width=40, height=20, 
+                             borderwidth=1, relief='solid')
         text_widget.pack(pady=10)
         
         for username, scores in self.user_scores.items():
@@ -337,8 +349,7 @@ class ExamApp:
         
         text_widget.configure(state='disabled')
         
-        ttk.Button(frame, text="Close", command=view_window.destroy,
-                  style='Login.TButton', width=20).pack(pady=5)
+        ttk.Button(frame, text="Close", command=view_window.destroy,style='Login.TButton', width=20).pack(pady=5)
 
     def take_exam(self):
         self.clear_frame(self.main_frame)
@@ -355,8 +366,9 @@ class ExamApp:
         header = ttk.Label(self.main_frame, text="Exam in Progress", style='Header.TLabel')
         header.pack(pady=(0, 20))
         
-        self.question_frame = ttk.Frame(self.main_frame)
-        self.question_frame.pack(pady=10, fill="both", expand=True)
+        # Create a bordered frame for questions
+        self.question_frame = ttk.Frame(self.main_frame, style='Border.TFrame')
+        self.question_frame.pack(pady=10, fill="both", expand=True, padx=20)
         
         self.show_question()
 
@@ -373,13 +385,13 @@ class ExamApp:
         question_label = ttk.Label(self.question_frame, 
                                  text=f"Question {self.current_question_index + 1} of {len(self.question_keys)}",
                                  style='TLabel')
-        question_label.pack(pady=(0, 10))
+        question_label.pack(pady=(10, 10))
         
         question_text = ttk.Label(self.question_frame, text=current_question,
                                 wraplength=400, style='TLabel')
         question_text.pack(pady=(0, 20))
         
-        # Answer entry
+        # Answer entry with border
         self.answer_entry = ttk.Entry(self.question_frame, width=40)
         self.answer_entry.pack(pady=(0, 20))
         
@@ -421,19 +433,22 @@ class ExamApp:
             self.user_scores[self.current_user] = []
         self.user_scores[self.current_user].append(final_score)
         
-        # Show results
+        # Show results in a bordered frame
         self.clear_frame(self.main_frame)
         
-        header = ttk.Label(self.main_frame, text="Exam Complete!", style='Header.TLabel')
-        header.pack(pady=(0, 20))
+        result_frame = ttk.Frame(self.main_frame, style='Border.TFrame')
+        result_frame.pack(fill="both", expand=True, padx=20, pady=20)
         
-        score_label = ttk.Label(self.main_frame, 
+        header = ttk.Label(result_frame, text="Exam Complete!", style='Header.TLabel')
+        header.pack(pady=(20, 20))
+        
+        score_label = ttk.Label(result_frame, 
                               text=f"Your Score: {final_score:.2f}%\n"
                                    f"Correct Answers: {self.score} out of {len(self.question_keys)}",
                               style='TLabel')
         score_label.pack(pady=(0, 20))
         
-        btn_frame = ttk.Frame(self.main_frame)
+        btn_frame = ttk.Frame(result_frame)
         btn_frame.pack(pady=10)
         
         ttk.Button(btn_frame, text="Return to Menu",
@@ -441,12 +456,36 @@ class ExamApp:
                   style='Login.TButton', width=20).pack(pady=5)
 
     def create_question(self):
-        question = simpledialog.askstring("New Question", "Enter the question:")
-        if question:
-            answer = simpledialog.askstring("New Answer", "Enter the answer:")
-            if answer:
+        # Create a custom dialog window
+        dialog = tk.Toplevel(self.master)
+        dialog.title("Create New Question")
+        dialog.geometry("400x300")
+        
+        frame = ttk.Frame(dialog, style='Border.TFrame')
+        frame.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        ttk.Label(frame, text="New Question").pack(pady=(10, 5))
+        question_entry = tk.Text(frame, height=3, width=40)
+        question_entry.pack(pady=(0, 10))
+        
+        ttk.Label(frame, text="Answer").pack(pady=(10, 5))
+        answer_entry = tk.Text(frame, height=3, width=40)
+        answer_entry.pack(pady=(0, 10))
+        
+        def save_question():
+            question = question_entry.get("1.0", tk.END).strip()
+            answer = answer_entry.get("1.0", tk.END).strip()
+            
+            if question and answer:
                 self.questions[question] = answer
                 messagebox.showinfo("Success", "Question added successfully")
+                dialog.destroy()
+            else:
+                messagebox.showerror("Error", "Both fields are required")
+        
+        ttk.Button(frame, text="Save Question",
+                  command=save_question,
+                  style='Login.TButton', width=20).pack(pady=10)
 
     def delete_question(self):
         if not self.questions:
@@ -457,11 +496,11 @@ class ExamApp:
         delete_window.title("Delete Question")
         delete_window.geometry("400x300")
         
-        frame = ttk.Frame(delete_window)
+        frame = ttk.Frame(delete_window, style='Border.TFrame')
         frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         ttk.Label(frame, text="Select Question to Delete",
-                 style='Header.TLabel').pack(pady=(0, 10))
+                 style='Header.TLabel').pack(pady=(10, 10))
         
         listbox = tk.Listbox(frame, width=40, height=10)
         listbox.pack(pady=10)
@@ -491,7 +530,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ExamApp(root)
     root.mainloop()
-    
+
 #akun admin: 
 #username: admin
 #password: admin123
