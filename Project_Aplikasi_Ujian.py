@@ -343,6 +343,7 @@ class ExamApp:
         
         ttk.Button(frame, text="Close", command=view_window.destroy,
                   style='Login.TButton', width=20).pack(pady=5)
+        
     def view_my_scores(self):
         # Fungsi untuk peserta melihat nilai mereka sendiri
         # - Menampilkan riwayat nilai dan rata-rata
