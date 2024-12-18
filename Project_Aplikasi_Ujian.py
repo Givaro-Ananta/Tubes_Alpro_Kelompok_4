@@ -343,4 +343,169 @@ class ExamApp:
         
         ttk.Button(frame, text="Close", command=view_window.destroy,
                   style='Login.TButton', width=20).pack(pady=5)
+    def view_my_scores(self):
+        # Fungsi untuk peserta melihat nilai mereka sendiri
+        # - Menampilkan riwayat nilai dan rata-rata
+        if self.current_user not in self.user_scores or not self.user_scores[self.current_user]:
+            messagebox.showinfo("No Scores", "You haven't taken any exams yet")
+            return
+           
+        view_window = tk.Toplevel(self.master)
+        view_window.title("My Scores")
+        view_window.geometry("300x400")
+       
+        frame = ttk.Frame(view_window, style='Border.TFrame')
+        frame.pack(fill="both", expand=True, padx=20, pady=10)
+       
+        ttk.Label(frame, text="My Exam Scores",
+                 style='Header.TLabel').pack(pady=(0, 10))
+       
+        text_widget = tk.Text(frame, wrap=tk.WORD, width=30, height=15,
+                             borderwidth=1, relief='solid')
+        text_widget.pack(pady=10)
+       
+        for i, score in enumerate(self.user_scores[self.current_user], 1):
+            text_widget.insert(tk.END, f"Attempt {i}: {score:.2f}/100\n")
+       
+        avg_score = sum(self.user_scores[self.current_user]) / len(self.user_scores[self.current_user])
+        text_widget.insert(tk.END, f"\nAverage Score: {avg_score:.2f}/100")
+       
+        text_widget.configure(state='disabled')
+       
+        ttk.Button(frame, text="Close", command=view_window.destroy,
+                  style='Login.TButton', width=20).pack(pady=5)
+
+
+    def view_all_scores(self):
+    # Cek apakah skor sudah ada
+        if not any(self.user_scores.values()):
+            messagebox.showinfo("No Scores", "No exam scores available yet")
+            return
+       
+        view_window = tk.Toplevel(self.master)
+        view_window.title("All User Scores")
+        view_window.geometry("400x500")
+       
+        frame = ttk.Frame(view_window, style='Border.TFrame')
+        frame.pack(fill="both", expand=True, padx=20, pady=10)
+       
+        ttk.Label(frame, text="All User Scores (Sorted by Average)",
+                style='Header.TLabel').pack(pady=(0, 10))
+       
+        text_widget = tk.Text(frame, wrap=tk.WORD, width=40, height=20,
+                            borderwidth=1, relief='solid')
+        text_widget.pack(pady=10)
+       
+        # Hitung skor rata-rata untuk setiap pengguna dan buat daftar tuple (nama pengguna, avg_score, skor)
+        user_averages = []
+        for username, scores in self.user_scores.items():
+            if scores:  # Only include users who have taken exams
+                avg_score = sum(scores) / len(scores)
+                user_averages.append((username, avg_score, scores))
+       
+        # Urutkan daftar berdasarkan skor rata-rata dengan urutan descending order
+        user_averages.sort(key=lambda x: x[1], reverse=True)
+       
+        # Menampilkan skor yang diurutkan
+        for rank, (username, avg_score, scores) in enumerate(user_averages, 1):
+            text_widget.insert(tk.END, f"\nRank {rank}: {username}\n")
+            for i, score in enumerate(scores, 1):
+                text_widget.insert(tk.END, f"Attempt {i}: {score:.2f}/100\n")
+            text_widget.insert(tk.END, f"Average Score: {avg_score:.2f}/100\n")
+            text_widget.insert(tk.END, "-" * 40 + "\n")
+       
+        text_widget.configure(state='disabled')
+       
+        ttk.Button(frame, text="Close", command=view_window.destroy,
+                style='Login.TButton', width=20).pack(pady=5)
+
+
+    def take_exam(self):
+        # Fungsi untuk memulai ujian
+        # - Inisialisasi variabel score dan index soal
+        # - Menampilkan soal satu per satu
+        self.clear_frame(self.main_frame)
+       
+        self.score = 0
+        self.current_question_index = 0
+        self.question_keys = list(self.questions.keys())
+       
+        if not self.question_keys:
+            messagebox.showerror("Error", "No questions available")
+            self.participant_screen()
+            return
+       
+        header = ttk.Label(self.main_frame, text="Exam in Progress", style='Header.TLabel')
+        header.pack(pady=(0, 20))
+       
+        # Membuat border pertanyaan
+        self.question_frame = ttk.Frame(self.main_frame, style='Border.TFrame')
+        self.question_frame.pack(pady=10, fill="both", expand=True, padx=20)
+       
+        self.show_question()
+
+
+    def show_question(self):
+        # Fungsi untuk menampilkan soal saat ujian
+        # - Menampilkan soal sesuai current_question_index
+        # - Menyediakan input untuk jawaban
+        # - Tombol navigasi (prev/next)
+        self.clear_frame(self.question_frame)
+       
+        if self.current_question_index >= len(self.question_keys):
+            self.finish_exam()
+            return
+       
+        current_question = self.question_keys[self.current_question_index]
+       
+        question_label = ttk.Label(self.question_frame,
+                                 text=f"Question {self.current_question_index + 1} of {len(self.question_keys)}",
+                                 style='TLabel')
+        question_label.pack(pady=(10, 10))
+       
+        question_text = ttk.Label(self.question_frame, text=current_question,
+                                wraplength=400, style='TLabel')
+        question_text.pack(pady=(0, 20))
+       
+        self.answer_entry = ttk.Entry(self.question_frame, width=40)
+        self.answer_entry.pack(pady=(0, 20))
+       
+        btn_frame = ttk.Frame(self.question_frame)
+        btn_frame.pack(pady=10)
+       
+        if self.current_question_index > 0:
+            prev_btn = ttk.Button(btn_frame, text="Previous",
+                                command=self.previous_question,
+                                style='Register.TButton', width=15)
+            prev_btn.pack(side="left", padx=5)
+       
+        next_btn = ttk.Button(btn_frame, text="Next",
+                            command=self.submit_answer,
+                            style='Login.TButton', width=15)
+        next_btn.pack(side="left", padx=5)
+
+
+    def previous_question(self):
+        self.current_question_index -= 1
+        self.show_question()
+
+
+    def submit_answer(self):
+        # Fungsi untuk memeriksa jawaban
+        # - Membandingkan jawaban user dengan jawaban benar
+        # - Menghitung score
+        # - Pindah ke soal berikutnya
+        # Fungsi untuk kembali ke soal sebelumnya
+        current_question = self.question_keys[self.current_question_index]
+        user_answer = self.answer_entry.get().strip().lower()
+        correct_answer = self.questions[current_question].strip().lower()
+       
+        if user_answer == correct_answer:
+            self.score += 1
+       
+        self.current_question_index += 1
+        self.show_question()
+
+
+
 
