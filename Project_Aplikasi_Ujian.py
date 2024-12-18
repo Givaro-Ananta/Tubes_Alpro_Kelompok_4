@@ -204,3 +204,143 @@ class ExamApp:
         messagebox.showinfo("Success", "Account registered successfully")
         self.login_screen()
 
+    def admin_login_screen(self):
+        # Fungsi untuk menampilkan layar login admin
+        # - Form khusus untuk login admin
+        # - Validasi kredensial admin
+        self.clear_frame(self.main_frame)
+        
+        header = ttk.Label(self.main_frame, text="Admin Login", style='Header.TLabel')
+        header.pack(pady=(0, 20))
+        
+        form_frame = ttk.Frame(self.main_frame)
+        form_frame.pack(pady=10)
+        
+        ttk.Label(form_frame, text="Admin Username").pack(anchor="w", pady=(0, 5))
+        self.admin_username_entry = self.create_entry(form_frame)
+        self.admin_username_entry.pack(pady=(0, 15))
+        
+        ttk.Label(form_frame, text="Admin Password").pack(anchor="w", pady=(0, 5))
+        self.admin_password_entry = self.create_entry(form_frame, show="*")
+        self.admin_password_entry.pack(pady=(0, 15))
+        
+        btn_frame = ttk.Frame(form_frame)
+        btn_frame.pack(pady=5)
+        
+        login_btn = ttk.Button(btn_frame, text="Login as Admin", 
+                             command=self.admin_login,
+                             style='Login.TButton', width=25)
+        login_btn.pack(pady=5)
+        
+        back_btn = ttk.Button(btn_frame, text="Back to Participant Login", 
+                            command=self.login_screen,
+                            style='Register.TButton', width=25)
+        back_btn.pack(pady=5)
+
+    def login(self):
+        # Fungsi untuk memproses login peserta
+        # - Validasi kredensial peserta
+        # - Mengatur current_user dan current_role
+        # - Mengarahkan ke layar peserta jika berhasil
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+        
+        if username in self.participant_users and self.participant_users[username] == password:
+            self.current_user = username
+            self.current_role = "participant"
+            self.participant_screen()
+        else:
+            messagebox.showerror("Error", "Invalid username or password")
+
+    def admin_login(self):
+        # Fungsi untuk memproses login admin
+        # - Validasi kredensial admin
+        # - Mengatur current_user dan current_role
+        # - Mengarahkan ke layar admin jika berhasil
+        username = self.admin_username_entry.get()
+        password = self.admin_password_entry.get()
+        
+        if username in self.admin_users and self.admin_users[username] == password:
+            self.current_user = username
+            self.current_role = "admin"
+            self.admin_screen()
+        else:
+            messagebox.showerror("Error", "Invalid admin credentials")
+
+    def admin_screen(self):
+        # Fungsi untuk menampilkan dashboard admin
+        # - Menampilkan menu untuk manajemen soal
+        # - Opsi untuk melihat nilai semua peserta
+        self.clear_frame(self.main_frame)
+        
+        header = ttk.Label(self.main_frame, 
+                          text=f"Welcome Admin: {self.current_user}",
+                          style='Header.TLabel')
+        header.pack(pady=(0, 15))
+        
+        btn_frame = ttk.Frame(self.main_frame)
+        btn_frame.pack(pady=10)
+        
+        actions = [
+            ("Create Question", self.create_question),
+            ("Delete Question", self.delete_question),
+            ("View All Questions", self.view_questions),
+            ("View All Scores", self.view_all_scores),  
+            ("Logout", self.login_screen)
+        ]
+        
+        for text, command in actions:
+            btn = ttk.Button(btn_frame, text=text, command=command,
+                           style='Register.TButton', width=20)
+            btn.pack(pady=5)
+
+    def participant_screen(self):
+        # Fungsi untuk menampilkan dashboard peserta
+        # - Menu untuk mengerjakan ujian
+        # - Opsi untuk melihat nilai sendiri
+        self.clear_frame(self.main_frame)
+        
+        header = ttk.Label(self.main_frame, 
+                          text=f"Welcome {self.current_user}",
+                          style='Header.TLabel')
+        header.pack(pady=(0, 15))
+        
+        btn_frame = ttk.Frame(self.main_frame)
+        btn_frame.pack(pady=10)
+        
+        actions = [
+            ("Take Exam", self.take_exam),
+            ("View My Scores", self.view_my_scores),  
+            ("Logout", self.login_screen)
+        ]
+        
+        for text, command in actions:
+            btn = ttk.Button(btn_frame, text=text, command=command,
+                           style='Register.TButton', width=20)
+            btn.pack(pady=5)
+
+    def view_questions(self):
+        # Fungsi untuk menampilkan semua soal (admin only)
+        # - Menampilkan soal dan jawaban dalam window terpisah
+        view_window = tk.Toplevel(self.master)
+        view_window.title("All Questions")
+        view_window.geometry("400x300")
+        
+        frame = ttk.Frame(view_window, style='Border.TFrame')
+        frame.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        ttk.Label(frame, text="Questions and Answers", 
+                 style='Header.TLabel').pack(pady=(0, 10))
+        
+        text_widget = tk.Text(frame, wrap=tk.WORD, width=40, height=12, 
+                             borderwidth=1, relief='solid')
+        text_widget.pack(pady=10)
+        
+        for question, answer in self.questions.items():
+            text_widget.insert(tk.END, f"Q: {question}\nA: {answer}\n\n")
+        
+        text_widget.configure(state='disabled')
+        
+        ttk.Button(frame, text="Close", command=view_window.destroy,
+                  style='Login.TButton', width=20).pack(pady=5)
+
