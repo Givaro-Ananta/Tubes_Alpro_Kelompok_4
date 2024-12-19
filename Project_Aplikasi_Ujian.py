@@ -506,6 +506,120 @@ class ExamApp:
         self.current_question_index += 1
         self.show_question()
 
+    def finish_exam(self):
+        # Fungsi untuk menyelesaikan ujian
+        # - Menghitung nilai akhir
+        # - Menyimpan nilai ke user_scores
+        # - Menampilkan hasil ujian
+        final_score = (self.score / len(self.question_keys)) * 100
+        
+        if self.current_user not in self.user_scores:
+            self.user_scores[self.current_user] = []
+        self.user_scores[self.current_user].append(final_score)
+        
+        self.clear_frame(self.main_frame)
+        
+        result_frame = ttk.Frame(self.main_frame, style='Border.TFrame')
+        result_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        header = ttk.Label(result_frame, text="Exam Complete!", style='Header.TLabel')
+        header.pack(pady=(20, 20))
+        
+        score_label = ttk.Label(result_frame, 
+                              text=f"Your Score: {final_score:.2f}%\n"
+                                   f"Correct Answers: {self.score} out of {len(self.question_keys)}",
+                              style='TLabel')
+        score_label.pack(pady=(0, 20))
+        
+        btn_frame = ttk.Frame(result_frame)
+        btn_frame.pack(pady=10)
+        
+        ttk.Button(btn_frame, text="Return to Menu",
+                  command=self.participant_screen,
+                  style='Login.TButton', width=20).pack(pady=5)
+
+    def create_question(self):
+        # Fungsi untuk admin membuat soal baru
+        # - Form input soal dan jawaban
+        # - Validasi dan penyimpanan soal baru
+
+        dialog = tk.Toplevel(self.master)
+        dialog.title("Create New Question")
+        dialog.geometry("400x300")
+        
+        frame = ttk.Frame(dialog, style='Border.TFrame')
+        frame.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        ttk.Label(frame, text="New Question").pack(pady=(10, 5))
+        question_entry = tk.Text(frame, height=3, width=40)
+        question_entry.pack(pady=(0, 10))
+        
+        ttk.Label(frame, text="Answer").pack(pady=(10, 5))
+        answer_entry = tk.Text(frame, height=3, width=40)
+        answer_entry.pack(pady=(0, 10))
+        
+        def save_question():
+            question = question_entry.get("1.0", tk.END).strip()
+            answer = answer_entry.get("1.0", tk.END).strip()
+            
+            if question and answer:
+                self.questions[question] = answer
+                messagebox.showinfo("Success", "Question added successfully")
+                dialog.destroy()
+            else:
+                messagebox.showerror("Error", "Both fields are required")
+        
+        ttk.Button(frame, text="Save Question",
+                  command=save_question,
+                  style='Login.TButton', width=20).pack(pady=10)
+
+    def delete_question(self):
+        if not self.questions:
+            messagebox.showerror("Error", "No questions available")
+            return
+            
+        delete_window = tk.Toplevel(self.master)
+        delete_window.title("Delete Question")
+        delete_window.geometry("400x300")
+        
+        frame = ttk.Frame(delete_window, style='Border.TFrame')
+        frame.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        ttk.Label(frame, text="Select Question to Delete",
+                 style='Header.TLabel').pack(pady=(10, 10))
+        
+        listbox = tk.Listbox(frame, width=40, height=10)
+        listbox.pack(pady=10)
+        
+        for question in self.questions:
+            listbox.insert(tk.END, question)
+        
+        def delete_selected():
+            selection = listbox.curselection()
+            if selection:
+                question = listbox.get(selection[0])
+                del self.questions[question]
+                delete_window.destroy()
+                messagebox.showinfo("Success", "Question deleted successfully")
+            else:
+                messagebox.showerror("Error", "Please select a question")
+        
+        ttk.Button(frame, text="Delete",
+                  command=delete_selected,
+                  style='Login.TButton', width=20).pack(pady=5)
+
+    def clear_frame(self, frame):
+        # Fungsi helper untuk membersihkan widget dari frame
+        # Digunakan saat berganti antar screen
+        for widget in frame.winfo_children():
+            widget.destroy()
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ExamApp(root)
+    root.mainloop()
+
+
 
 
 
