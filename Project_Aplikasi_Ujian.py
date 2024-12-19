@@ -420,7 +420,6 @@ class ExamApp:
         ttk.Button(frame, text="Close", command=view_window.destroy,
                 style='Login.TButton', width=20).pack(pady=5)
 
-
     def take_exam(self):
         # Fungsi untuk memulai ujian
         # - Inisialisasi variabel score dan index soal
