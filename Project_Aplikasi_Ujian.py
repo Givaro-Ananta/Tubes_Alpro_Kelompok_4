@@ -620,6 +620,11 @@ if __name__ == "__main__":
     root.mainloop()
 
 
+#akun admin: 
+#username: admin
+#password: admin123
+
+
 
 
 
